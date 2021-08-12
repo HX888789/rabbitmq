@@ -1,6 +1,7 @@
 package com.hx.rabbitmq.springbootrabbitmq.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +27,25 @@ public class SendMsgController {
      */
     @GetMapping("/sendMsg/{message}")
     public void sendMsg(@PathVariable("message") String message){
-        log.info("当前时间：{}，发送一条信息给两个TTL队列:{}",new Date().toString(),message);
+        log.info("当前时间：{}，发送一条信息给两个TTL队列:{}", new Date(),message);
         rabbitTemplate.convertAndSend("X","XA","消息来自ttl为10s的队列"+message);
         rabbitTemplate.convertAndSend("X","XB","消息来自ttl为40s的队列"+message);
+        rabbitTemplate.convertAndSend("X","XB","消息来自ttl为40s的队列"+message);
+
+    }
+    /**
+     * 发设置ttl的消息
+     */
+    @GetMapping("/sendExpirationMsg/{message}/{ttlTime}")
+    public void sendMsg(@PathVariable("message") String message,@PathVariable("ttlTime") String ttlTime){
+
+        log.info("当前时间:{},发送一条市场为{}毫秒ttl信息给队列QC：{}",
+                new Date(),ttlTime,message);
+        rabbitTemplate.convertAndSend("x","XC",message,
+                t -> {
+                //发送消息时 这是延迟
+                t.getMessageProperties().setExpiration(ttlTime);
+                return t;}
+               );
     }
 }

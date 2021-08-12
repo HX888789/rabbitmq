@@ -19,6 +19,7 @@ public class TtlQueueConfig {
     //普通队列名称
     public static final String QUEUE_A = "QA";
     public static final String QUEUE_B = "QB";
+    public static final String QUEUE_C = "QC";
     //死信队列名称
     public static final String DEAD_LETTER_QUEUE = "QD";
 
@@ -68,25 +69,57 @@ public class TtlQueueConfig {
     }
 
     @Bean
+    public Queue queueC(){
+
+        Map<String,Object> arguments = new HashMap<>(3);
+        //设置死信交换机
+        arguments.put("x-dead-letter-exchange",Y_DEAD_LETTER_EXCHANGE);
+        //设置私信routingKey
+        arguments.put("x-dead-letter-routing-key","YD");
+        return  QueueBuilder.durable(QUEUE_C).withArguments(arguments).build();
+    }
+
+    @Bean
     public Queue queueD(){
         return  QueueBuilder.durable(DEAD_LETTER_QUEUE).build();
     }
-    //绑定
+
+    /**
+     * 绑定
+     * @param queueA 队列
+     * @param xExchange 交换机
+     * @return 绑定
+     */
     @Bean
     public Binding queueABingDingX(Queue queueA, DirectExchange xExchange){
         return BindingBuilder.bind(queueA).to(xExchange).with("XA");
     }
 
-    //绑定
+    /**
+     * 绑定
+     * @param queueB 队列
+     * @param xExchange 交换机
+     * @return 绑定
+     */
     @Bean
     public Binding queueBBingDingX(Queue queueB, DirectExchange xExchange){
         return BindingBuilder.bind(queueB).to(xExchange).with("XB");
     }
 
-    //绑定
+    /**
+     * 绑定
+     * @param queueD 队列
+     * @param yExchange 交换机
+     * @return 绑定
+     */
     @Bean
     public Binding queueBBingDingY(Queue queueD, DirectExchange yExchange){
         return BindingBuilder.bind(queueD).to(yExchange).with("YD");
+    }
+
+    @Bean
+    public Binding queueCBingDingX(Queue queueC, DirectExchange xExchange){
+        return BindingBuilder.bind(queueC).to(xExchange).with("XC");
     }
 
 }

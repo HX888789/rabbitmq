@@ -23,7 +23,7 @@ public class DeadLetterQueueConsumer {
      */
     @RabbitListener(queues = "QD")
     public void receiveD(Message message, Channel channel)throws Exception{
-        String msg = String.valueOf(message.getBody());
+        String msg = new String(message.getBody());
         log.info("当前时间：{},收到死信队列消息：{}",new Date().toString(),msg);
     }
 
