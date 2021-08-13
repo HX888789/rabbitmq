@@ -1,5 +1,6 @@
 package com.hx.rabbitmq.springbootrabbitmq.controller;
 
+import com.hx.rabbitmq.springbootrabbitmq.config.DelayedQueueConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -47,5 +48,19 @@ public class SendMsgController {
                 t.getMessageProperties().setExpiration(ttlTime);
                 return t;}
                );
+    }
+    /**
+     * 发送消息 基于插件的 消息及时间
+     */
+    @GetMapping("/sendDelayMsg/{message}/{delayTime}")
+    public void sendMsg(@PathVariable("message") String message,@PathVariable("delayTime") Integer delayTime){
+        log.info("当前时间:{},发送一条市场为{}毫秒ttl信息给队列QC：{}",
+                new Date(),delayTime,message);
+        rabbitTemplate.convertAndSend(DelayedQueueConfig.DELAYED_EXCHANGE_NAME,DelayedQueueConfig.DELAYED_ROUTING_KEY +
+                        message,t ->{
+            t.getMessageProperties().setDelay(delayTime);
+            return t;
+        }
+        );
     }
 }
