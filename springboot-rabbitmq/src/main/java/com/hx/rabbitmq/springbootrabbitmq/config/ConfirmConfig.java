@@ -96,6 +96,6 @@ public class ConfirmConfig {
 
     @Bean
     public Binding backupQueueBindingBackupExchange(Queue backupQueue,FanoutExchange backupExchange){
-        return BindingBuilder.bind(backupExchange).to(backupExchange);
+        return BindingBuilder.bind(backupQueue).to(backupExchange);
     }
 }
